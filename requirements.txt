@@ -1,0 +1,6 @@
+Flask
+transformers
+torch
+Werkzeug
+langdetect
+python-dotenv

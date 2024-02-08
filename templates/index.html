@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hate Speech Recognition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredericka+the+Great&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee+Spice&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Honk&family=Sora:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
+
+
+    <style>
+        body {
+            font-family: 'Bangers', cursive;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('/static/4845746.jpg') no-repeat center center fixed; 
+            background-size: cover;
+        }
+        .container {
+            display: flex;
+            width: 90%;
+            max-width: 1700px;
+            box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.5);
+            border: 5px solid #000;
+            border-radius: 15px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.85);
+        }
+        .section {
+            padding: 20px;
+            position: relative;
+            border: 5px solid #000;
+            margin: 10px;
+            border-radius: 15px;
+            background: #FFF;
+            box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.5);
+        }
+        .form-section {
+            flex: 2;
+            max-width: 500px;
+        }
+        .about-section {
+    flex: 3;
+    background: #FFE4C4;
+    font-family: 'sora';
+    height: 600px; /* Adjust the height as needed */
+    overflow-y: auto; /* Enables scrolling */
+}
+
+/* Style the scrollbar (optional) */
+.about-section::-webkit-scrollbar {
+    width: 10px;
+}
+
+.about-section::-webkit-scrollbar-thumb {
+    background-color: transparent; /* Makes the scrollbar thumb transparent */
+    border-radius: 5px;
+}
+
+.about-section::-webkit-scrollbar-thumb:hover {
+    background-color: #b3b3b3; /* Color when hovered */
+}
+
+.about-section::-webkit-scrollbar-track {
+    background-color: transparent; /* Optional: Makes the track transparent */
+}
+        h2 {
+            font-family: 'Honk';
+            font-size: 3em;
+            margin: 0;
+            text-transform: uppercase;
+            text-align: center;
+            /* color: #ff5555; */
+            /* -webkit-text-stroke: 1px black; */
+            /* text-shadow: 2px 2px #f2f2f2; */
+        }
+
+        h3 {
+            font-family: 'Bungee Spice';
+            font-size: 2em;
+            margin: 0;
+            text-transform: uppercase;
+            text-align: left;
+            /* color: #ff5555; */
+            /* -webkit-text-stroke: 1px black; */
+            text-shadow: 2px 2px #f2f2f2;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        input[type="text"], button {
+            padding: 10px;
+            margin: 15px 0;
+            border: 2px solid #000;
+            border-radius: 10px;
+            font-size: 1.5em;
+        }
+        button {
+            background-color: #58a4b0;
+            color: #fff;
+            border-color: #000;
+            font-size: 1.5em;
+            font-family: 'Bangers', cursive;
+            cursor: pointer;
+            box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.5);
+        }
+        button:hover {
+            background-color: #417b85;
+        }
+        .speech-bubble {
+            position: absolute;
+            padding: 10px;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f0e130;
+            border-radius: 50px;
+            border: 4px solid #000;
+            font-size: 1.2em;
+            z-index: 10;
+            box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.5);
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border: 20px solid transparent;
+            border-top-color: #f0e130;
+            border-bottom: 0;
+            margin-left: -20px;
+            margin-bottom: -20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="section form-section">
+            <h2>Prediction <br> Form</h2>
+            <form method="post">
+                <input type="text" id="text_area" name='text_area'required>
+                <select name="model_choice" style="padding: 10px; margin: 15px 0; border: 2px solid #000; border-radius: 10px; font-size: 1.5em;">
+                    <option value="">Select a Model</option>
+                    <option value="BERT">BERT</option>
+                    <option value="DistilBERT">DistilBERT</option>
+                    <option value="MuRIL">MuRIL</option>
+                    <option value="Indic-BERT">Indic-BERT</option>
+                    <option value="RoBERTa">RoBERTa</option>
+                    <option value="NLLB">NLLB</option>
+                    <option value="BART">BART</option>
+                </select>                
+                <!-- Form Fields -->
+                <button type="submit">Submit</button>
+            </form>
+            <div class="speech-bubble">{{prediction}}</div>
+        </div>
+        <div class="section about-section" data-aos="fade-up" data-aos-duration="500">
+            <h2>Unmasking Hate: Detecting Hate Speech in Telugu Language</h2>
+    <p>Our project was inspired by the pressing need to address the proliferation of hate speech on social media, particularly in native languages like Telugu, which often slip under the radar of popular detection systems. As native Telugu speakers, we took it upon ourselves to develop a solution that could effectively identify and mitigate the spread of hate within our community. Recognizing the significant impact that hate speech has on individuals and society, we leveraged advanced machine learning models to parse through thousands of tweets, aiming to create a safer and more respectful online environment. Our dedication to this cause reflects our commitment to promoting harmony and understanding in the digital age.</p>
+    <h3 data-aos="fade-right" data-aos-duration="500">Project Summary</h3>
+    <p data-aos="fade-left" data-aos-duration="1000">Our project represents a foray into the realm of computational linguistics, specifically targeting the scourge of hate speech on social media platforms. We directed our efforts towards the Telugu language, crafting a unique dataset of authentic tweets to serve as the foundation for our analysis. This dataset was not only self-compiled but also meticulously annotated to ensure purity and relevance to the Telugu vernacular.
+
+        Harnessing the power of state-of-the-art transformer models, such as mBERT, XLM-RoBERTa, and MuRIL, we embarked on a comprehensive exploration of their capabilities in detecting nuanced forms of verbal abuse prevalent among the youth on Twitter. The challenge was not only to identify overt instances of hate but also to interpret the subtleties of language used in a context where colloquialisms and slang could often mask the intent.
+        
+        Our dedication to addressing this issue was twofold: to enhance the precision of hate speech detection algorithms in lesser-studied languages and to contribute to creating a healthier online discourse. The transformative potential of our work lies in its dual commitment to technological advancement and social betterment.</p>
+    <h3 data-aos="fade-right" data-aos-duration="1000">Methodology</h3>
+        <h4>Data Collection and Annotation</h4>
+        
+        <b>Data Acquisition:</b>
+        Utilizing the `snscrape` library, our team harvested approximately 50,000 tweets from Twitter, focusing on trending hashtags and topics. This comprehensive collection process was integral to our dataset's foundation. <br> <br>
+        
+        <b>Annotation Criteria:</b>
+        Tweets were meticulously categorized based on the sentiment expressed: <br> <br>
+        
+           - <b>Negative:</b> Tweets containing abusive language, threats to individuals, groups, communities, or nations, as well as any expressions of hate. <br>
+          
+            - <b>Positive:</b> Tweets with neutral or positive connotations that respect all individuals, communities, and countries without causing offense. <br>
+          
+            - <b>Irrelevant:</b> Tweets not in the Telugu language, as certain tags may engage speakers of other languages. Such irrelevant data were subsequently excluded from the dataset. <br>
+           
+
+
+        
+        <h4>Data Preprocessing</h4>
+        
+        <b>Cleaning and Balancing:</b>
+        The preprocessing phase entailed rigorous data cleaning, stripping sentences of hashtags, user IDs, mentions, and emojis to achieve a purified dataset. A significant imbalance was detected, characterized by an overrepresentation of negative sentiments. To rectify this, approximately 10,000 negative tweets were removed, striving for a balanced distribution of sentiments within the dataset. <br>
+
+         <!-- Data Distribution Before and After Preprocessing -->
+        <canvas id="dataDistributionPrePost" width="800" height="450" data_aos="fade-up"></canvas>
+        
+        <h4>Model Implementation and Training</h4>
+        
+        <b>Model Integration:</b> <br> <br>
+        Our methodology commenced with the integration of models from the Hugging Face repository. Key training parameters were configured using the Transformers library, segmenting the data into training, validation, and testing cohorts. These segments were then amalgamated into a singular dataset via the Hugging Face dataset utility. <br>
+        <!-- Train/Validation/Test Split -->
+        <canvas id="dataSplit" width="800" height="450" data_aos="fade-up"></canvas>
+        
+        <b>Training Process:</b>
+        The training and validation datasets were allocated to a 'trainer' object, propelling the model training process. Post-training, the models were subjected to performance evaluation against the reserved test dataset. <br>
+        
+        <h4>Sequence Classification Framework</h4>
+        
+        <b>Hugging Face's Add-Ons Utilization:</b>
+        For sequence classification tasks, we employed specific Hugging Face add-ons corresponding to each model: <br> <br>
+        
+        - <b>BERT Models:</b> <i>BertForSequenceClassification</i> for mBERT and MuRIL. <br>
+        - <b>RoBERTa Models:</b> `RobertaForSequenceClassification` for XLM-RoBERTa. <br>
+        - <b>DistilBERT Models:</b> `DistilBERTForSequenceClassification`. <br>
+        - <b>ALBERT Models:</b> `AlbertForSequenceClassification` for Indic-BERT. <br> <br>
+        
+        <b>Custom Classification Heads:</b>
+        For models such as NLLB and IndicBART, which lack pre-built sequence classification heads in Hugging Face, custom classification heads were devised. These were constructed to process the model's encodings or logits, applying a softmax layer for output distribution before initiating the training with this appended layer.</p>
+    <h3>Model Performance</h3>
+    <p>The Performance metrics used are F1-score, Precision, Recall and Accuracy, Here are the gained metrics for every model used :</p>
+    <table style="width:100%; border-collapse: collapse; font-family: Arial, sans-serif;">
+        <tr style="background-color: #FFD700; color: black; font-weight: bold;">
+          <th style="padding: 10px; border: 1px solid black;">Model</th>
+          <th style="padding: 10px; border: 1px solid black;">F1 Score</th>
+          <th style="padding: 10px; border: 1px solid black;">Precision</th>
+          <th style="padding: 10px; border: 1px solid black;">Recall</th>
+          <th style="padding: 10px; border: 1px solid black;">Accuracy</th>
+        </tr>
+        <tr style="background-color: #FFC0CB; color: black; font-weight: bold;">
+          <td style="padding: 10px; border: 1px solid black;">mBERT</td>
+          <td style="padding: 10px; border: 1px solid black;">98.21%</td>
+          <td style="padding: 10px; border: 1px solid black;">98.24%</td>
+          <td style="padding: 10px; border: 1px solid black;">98.21%</td>
+          <td style="padding: 10px; border: 1px solid black;">98.21%</td>
+        </tr>
+        <!-- Repeat the row styling for each model -->
+        <tr style="background-color: #FFC0CB; color: black; font-weight: bold;">
+            <td style="padding: 10px; border: 1px solid black;">Indic-BERT</td>
+            <td style="padding: 10px; border: 1px solid black;">98.1%</td>
+            <td style="padding: 10px; border: 1px solid black;">98.2%</td>
+            <td style="padding: 10px; border: 1px solid black;">98.3%</td>
+            <td style="padding: 10px; border: 1px solid black;">97.9%</td>
+          </tr>
+        <tr style="background-color: #FFC0CB; color: black; font-weight: bold;">
+          <td style="padding: 10px; border: 1px solid black;">NLLB</td>
+          <td style="padding: 10px; border: 1px solid black;">97.3%</td>
+          <td style="padding: 10px; border: 1px solid black;">97.23%</td>
+          <td style="padding: 10px; border: 1px solid black;">97.1%</td>
+          <td style="padding: 10px; border: 1px solid black;">97.34%</td>
+        </tr>
+        <tr style="background-color: #FFC0CB; color: black; font-weight: bold;">
+          <td style="padding: 10px; border: 1px solid black;">DistilBERT</td>
+          <td style="padding: 10px; border: 1px solid black;">98.03%</td>
+          <td style="padding: 10px; border: 1px solid black;">98.05%</td>
+          <td style="padding: 10px; border: 1px solid black;">98.03%</td>
+          <td style="padding: 10px; border: 1px solid black;">98.03%</td>
+        </tr>
+        <tr style="background-color: #FFC0CB; color: black; font-weight: bold;">
+          <td style="padding: 10px; border: 1px solid black;">XLM-RoBERTa</td>
+          <td style="padding: 10px; border: 1px solid black;">85.36%</td>
+          <td style="padding: 10px; border: 1px solid black;">85.57%</td>
+          <td style="padding: 10px; border: 1px solid black;">85.38%</td>
+          <td style="padding: 10px; border: 1px solid black;">85.38%</td>
+        </tr>
+        <tr style="background-color: #FFC0CB; color: black; font-weight: bold;">
+            <td style="padding: 10px; border: 1px solid black;">MuRIL</td>
+            <td style="padding: 10px; border: 1px solid black;">98.3%</td>
+            <td style="padding: 10px; border: 1px solid black;">98%</td>
+            <td style="padding: 10px; border: 1px solid black;">97.9%</td>
+            <td style="padding: 10px; border: 1px solid black;">98.2%</td>
+          </tr>
+      </table>
+
+      <canvas id="comparisonChart" width="800" height="450" data_aos="fade-up"></canvas>
+
+      
+    <h3>References</h3>
+    <p>Our research was informed by a variety of sources, including academic papers and datasets specifically focused on hate speech detection in low-resource languages like Telugu.</p>
+    <ol>
+        <li><a href="https://arxiv.org/abs/2303.18223">W. X. Zhao et al., “A Survey of Large Language Models,” Mar. 2023.</a></li>
+        <li><a href="https://www.researchgate.net/publication/355583212_Hate_and_Offensive_Speech_Detection_in_Hindi_and_Marathi">A. Velankar, H. Patil, A. Gore, S. Salunke, and R. Joshi, “Hate and Offensive Speech Detection in Hindi and Marathi,” Oct. 2021.</a></li>
+        <li><a href="https://doi.org/10.18653/v1/2022.dravidianlangtech-1.16">S. Biradar and S. Saumya, “IIITDWD@TamilNLP-ACL2022: Transformer-based approach to classify abusive content in Dravidian Code-mixed text,” in Proceedings of the Second Workshop on Speech and Language Technologies for Dravidian Languages, Dublin, Ireland: Association for Computational Linguistics, May 2022, pp. 100–104.</a></li>
+        <li><a href="https://arxiv.org/abs/1910.03771">T. Wolf et al., “HuggingFace’s Transformers: State-of-the-art Natural Language Processing,” Oct. 2019.</a></li>
+        <li><a href="http://arxiv.org/abs/1810.04805">J. Devlin, M.-W. Chang, K. Lee, and K. Toutanova, “BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding,” 2018.</a></li>
+        <li><a href="http://arxiv.org/abs/1910.01108">V. Sanh, L. Debut, J. Chaumond, and T. Wolf, “DistilBERT, a distilled version of BERT: smaller, faster, cheaper and lighter,” 2019.</a></li>
+        <li><a href="https://doi.org/10.18653/v1/2020.acl-main.747">A. Conneau et al., “Unsupervised Cross-lingual Representation Learning at Scale,” in Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics, Jul. 2020, pp. 8440–8451.</a></li>
+        <li><a href="https://doi.org/10.18653/v1/2020.findings-emnlp.445">D. Kakwani et al., “IndicNLPSuite: Monolingual Corpora, Evaluation Benchmarks and Pre-trained Multilingual Language Models for Indian Languages,” in Findings of the Association for Computational Linguistics: EMNLP 2020, Nov. 2020, pp. 4948–4961.</a></li>
+        <li><a href="https://arxiv.org/abs/2103.10730">S. Khanuja et al., “MuRIL: Multilingual Representations for Indian Languages,” 2021.</a></li>
+        <li><a href="https://arxiv.org/abs/2207.04672">NLLB Team et al., “No Language Left Behind: Scaling Human-Centered Machine Translation,” Jul. 2022.</a></li>
+        <li><a href="https://doi.org/10.18653/v1/2022.findings-acl.145">R. Dabre, H. Shrotriya, A. Kunchukuttan, R. Puduppully, M. M. Khapra, and P. Kumar, “IndicBART: A Pre-trained Model for Indic Natural Language Generation,” Sep. 2021.</a></li>
+        <li><a href="http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-performance-deep-learning-library.pdf">A. Paszke et al., “PyTorch: An Imperative Style, High-Performance Deep Learning Library,” in Advances in Neural Information Processing Systems 32, 2019, pp. 8024–8035.</a></li>
+    </ol>
+    <p>Additional references include datasets and tools from <a href="https://huggingface.co/">Hugging Face</a> which have been instrumental in our project.</p>
+        </div>
+    </div>
+</body>
+
+<script>
+    const ctxPrePost = document.getElementById('dataDistributionPrePost').getContext('2d');
+const dataDistributionPrePost = new Chart(ctxPrePost, {
+    type: 'bar',
+    data: {
+        labels: ['Negative', 'Positive'],
+        datasets: [
+            {
+                label: 'Before Preprocessing',
+                data: [28001, 19957],
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            },
+            {
+                label: 'After Preprocessing',
+                data: [18521, 19514],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }
+        ]
+    },
+    options: {
+        
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'Data Distribution Before and After Preprocessing'
+            }
+        }
+    }
+});
+
+// Train/Validation/Test Split Chart
+const ctxSplit = document.getElementById('dataSplit').getContext('2d');
+const dataSplit = new Chart(ctxSplit, {
+    type: 'bar',
+    data: {
+        labels: ['Train', 'Validation', 'Test'],
+        datasets: [{
+            label: 'Dataset Split',
+            data: [30428, 7607, 3804],
+            backgroundColor: [
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        scales: {
+            x: {
+                beginAtZero: true
+            }
+        },
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            },
+            title: {
+                display: true,
+                text: 'Train/Validation/Test Dataset Split'
+            }
+        }
+    }
+});
+    const ctx = document.getElementById('comparisonChart').getContext('2d');
+    const comparisonChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['mBERT', 'Indic-BERT', 'NLLB', 'DistilBERT', 'XLM-RoBERTa', 'MuRIL'],
+            datasets: [
+                {
+                    label: 'F1 Score',
+                    data: [98.21, 98.1, 97.3, 98.03, 85.36, 98.3],
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Precision',
+                    data: [98.24, 98.2, 97.23, 98.05, 85.57, 98],
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Recall',
+                    data: [98.21, 98.3, 97.1, 98.03, 85.38, 97.9],
+                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Accuracy',
+                    data: [98.21, 97.9, 97.34, 98.03, 85.38, 98.2],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Model Performance Comparison'
+                }
+            }
+        }
+    });
+    // Initialize AOS
+    AOS.init();
+  </script>
+  
+</html>
