@@ -1,7 +1,6 @@
 from transformers import TextClassificationPipeline, DistilBertTokenizer, DistilBertForSequenceClassification, BertForSequenceClassification, BertTokenizer, AutoTokenizer, XLMRobertaForSequenceClassification
 import torch
 
-
 def check_model(model_name):
     if model_name == "DistilBERT":
         model = DistilBertForSequenceClassification.from_pretrained('SiddarthaKoppaka/hate-speech-telugu-distilbert')
