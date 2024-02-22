@@ -1,0 +1,26 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      - echo Installing dependencies
+      - pip install -r requirements.txt
+  pre_build:
+    commands:
+      - echo Pre-build phase
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Running Flask unit tests
+      # Add commands to run your tests here
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Deploying to AWS Elastic Beanstalk
+      - eb deploy YourEnvironmentName --staged
+artifacts:
+  files:
+    - '**/*'
+  base-directory: 'path/to/your/artifacts'
