@@ -7,11 +7,18 @@ import os
 app = Flask(__name__)
 
 
-# Load environment variables from .env file
+# Load environment variables from .env file (ensure this is done securely in production)
 load_dotenv()
 
-# Now you can access the environment variable
+# Get the Hugging Face token from environment variables
 hf_token = os.getenv('HUGGINGFACE_TOKEN')
+
+if hf_token:
+    # Log in to Hugging Face Hub
+    HfFolder.save_token(hf_token)
+    print("Logged into Hugging Face Hub successfully.")
+else:
+    print("Hugging Face token not found. Please set the HUGGINGFACE_TOKEN environment variable.")
 
 
 @app.route('/', methods=['GET', 'POST'])
